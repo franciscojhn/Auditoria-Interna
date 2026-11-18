@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="es"><head>
+<html lang="es">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Auditoría Interna — RAC Inspecciones</title>
@@ -7,6 +8,26 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- SheetJS (xlsx) para importar archivos Excel -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script type="module">
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-app.js";
+  import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/13.4.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCZ9ruRWZAyRk20UQS18N604xpbwMuL5I0",
+    authDomain: "auditoria-interna-96883.firebaseapp.com",
+    projectId: "auditoria-interna-96883",
+    storageBucket: "auditoria-interna-96883.firebasestorage.app",
+    messagingSenderId: "12197880625",
+    appId: "1:12197880625:web:75dc00b1e230f3ccd04610"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  
+  // Dejamos la base de datos lista y disponible globalmente
+  window.db = db;
+  window.dbConsts = { doc, setDoc, getDoc };
+</script>
     <style>
         :root {
             --primary: #0f172a;
@@ -262,7 +283,7 @@
         table {
             width: 100%;
             border-collapse: collapse;
-            text-align: center; /* Centrar todo el texto por defecto en la tabla */
+            text-align: center;
             font-size: 11px;
             background: white;
         }
@@ -271,7 +292,7 @@
             padding: 7px 10px;
             border-bottom: 1px solid #e2e8f0;
             border-right: 1px solid #f1f5f9;
-            text-align: center; /* Asegurar centrado en celdas y encabezados */
+            text-align: center;
             vertical-align: middle;
         }
 
@@ -460,18 +481,18 @@
 <body>
 
     <!-- PANTALLA DE LOGIN -->
-    <div id="loginScreen" class="login-screen hidden">
+    <div id="loginScreen" class="login-screen">
         <div class="login-card">
             <h2>Auditoría Interna</h2>
             <p>Ing. Francisco Hernandez</p>
             <form onsubmit="handleLogin(event)">
                 <div class="form-group">
                     <label>RUT de Acceso</label>
-                    <input type="text" id="loginRut" required="" value="12345678-9" autocomplete="username">
+                    <input type="text" id="loginRut" required value="12345678-9" autocomplete="username">
                 </div>
                 <div class="form-group">
                     <label>Contraseña</label>
-                    <input type="password" id="loginPassword" required="" value="1234" autocomplete="new-password">
+                    <input type="password" id="loginPassword" required value="1234" autocomplete="new-password">
                 </div>
                 <div id="loginErrorMsg" class="error-msg hidden">RUT o contraseña incorrectos.</div>
                 <button type="submit" class="btn-primary" style="width:100%; margin-top:8px;">Ingresar como Administrador</button>
@@ -484,7 +505,7 @@
     </div>
 
     <!-- CONTENIDO PRINCIPAL -->
-    <div id="appContent" class="">
+    <div id="appContent" class="hidden">
         <header>
             <div class="header-title">
                 <h1>Reporte de Auditoría Interna</h1>
@@ -511,10 +532,10 @@
                 <div class="upload-area">
                     <label class="form-group" style="margin-bottom:6px;">
                         <span style="font-weight:bold; font-size:11px; display:block; margin-bottom:4px;">IMPORTAR ARCHIVOS EXCEL</span>
-                        <input type="file" id="excelFileInput" accept=".xlsx, .xls" multiple="" onchange="handleFilesUpload(event)" style="padding:4px; font-size:11px;">
+                        <input type="file" id="excelFileInput" accept=".xlsx, .xls" multiple onchange="handleFilesUpload(event)" style="padding:4px; font-size:11px;">
                     </label>
                     <div class="upload-info">
-                        <span id="loadedFilesCount">5 registros cargados</span>
+                        <span id="loadedFilesCount">6 registros cargados</span>
                         <button onclick="confirmClearData()" class="btn-danger" style="padding: 3px 6px; font-size: 10px;">Borrar Todo</button>
                     </div>
 
@@ -526,8 +547,8 @@
                             <input type="text" id="manualPpu" placeholder="Patente (PPU)" style="padding:4px; font-size:10px; border:1px solid #cbd5e1; border-radius:4px;">
                         </div>
                         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:4px; margin-bottom:4px;">
-                            <select id="manualExec" style="width:100%; max-width:100%; box-sizing:border-box; padding:4px; font-size:10px; border:1px solid #cbd5e1; border-radius:4px; background:#fff;"><option value="">Seleccionar ejecutivo...</option><option value="Belén Astudillo Saavedra">Belén Astudillo Saavedra</option><option value="Belen Astudillo">Belen Astudillo</option><option value="Bryan Elcorrobarrutia">Bryan Elcorrobarrutia</option><option value="Deborah Uribe">Deborah Uribe</option><option value="Jorge Benavides">Jorge Benavides</option><option value="Isaias Lobos">Isaias Lobos</option><option value="Genesis Alfaro">Genesis Alfaro</option><option value="Jorge Gonzalez">Jorge Gonzalez</option><option value="Javiera Sepulveda">Javiera Sepulveda</option><option value="Juan Carlos Acuña">Juan Carlos Acuña</option><option value="Macarena Cantillana">Macarena Cantillana</option><option value="Lorannys Hernandez">Lorannys Hernandez</option><option value="Mauricio Irribarra Lagos">Mauricio Irribarra Lagos</option><option value="Katherina Gonzalez">Katherina Gonzalez</option><option value="Rodrigo Balboa">Rodrigo Balboa</option><option value="Martin Salinas">Martin Salinas</option><option value="Maximiliano Romero">Maximiliano Romero</option><option value="Nelson Sojo">Nelson Sojo</option><option value="Valentina Verdugo">Valentina Verdugo</option><option value="Diego Olea">Diego Olea</option></select>
-                            <input type="text" id="manualCompany" placeholder="Compañía..." style="width:100%; max-width:100%; box-sizing:border-box; padding:4px; font-size:10px; border:1px solid #cbd5e1; border-radius:4px; background:#fff;">
+                            <select id="manualExec" style="width:100%; box-sizing:border-box; padding:4px; font-size:10px; border:1px solid #cbd5e1; border-radius:4px; background:#fff;"></select>
+                            <input type="text" id="manualCompany" placeholder="Compañía..." style="width:100%; box-sizing:border-box; padding:4px; font-size:10px; border:1px solid #cbd5e1; border-radius:4px; background:#fff;">
                         </div>
                         <button onclick="addManualInspection()" class="btn-primary" style="width:100%; padding:5px; font-size:10px;">+ Agregar Inspección Manual</button>
                     </div>
@@ -549,111 +570,11 @@
                             <button onclick="addNewExecutiveManually()" class="btn-primary" style="padding:4px 8px; font-size:10px; white-space:nowrap;">+ Agregar</button>
                         </div>
 
-                        <div class="executives-selector-container" id="executivesCheckboxList"><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Belén Astudillo Saavedra" class="exec-checkbox" checked="" onchange="applyFilters()"> Belén Astudillo Saavedra
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Belén Astudillo Saavedra')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Belen Astudillo" class="exec-checkbox" checked="" onchange="applyFilters()"> Belen Astudillo
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Belen Astudillo')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Bryan Elcorrobarrutia" class="exec-checkbox" checked="" onchange="applyFilters()"> Bryan Elcorrobarrutia
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Bryan Elcorrobarrutia')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Deborah Uribe" class="exec-checkbox" checked="" onchange="applyFilters()"> Deborah Uribe
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Deborah Uribe')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Jorge Benavides" class="exec-checkbox" checked="" onchange="applyFilters()"> Jorge Benavides
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Jorge Benavides')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Isaias Lobos" class="exec-checkbox" checked="" onchange="applyFilters()"> Isaias Lobos
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Isaias Lobos')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Genesis Alfaro" class="exec-checkbox" checked="" onchange="applyFilters()"> Genesis Alfaro
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Genesis Alfaro')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Jorge Gonzalez" class="exec-checkbox" checked="" onchange="applyFilters()"> Jorge Gonzalez
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Jorge Gonzalez')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Javiera Sepulveda" class="exec-checkbox" checked="" onchange="applyFilters()"> Javiera Sepulveda
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Javiera Sepulveda')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Juan Carlos Acuña" class="exec-checkbox" checked="" onchange="applyFilters()"> Juan Carlos Acuña
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Juan Carlos Acuña')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Macarena Cantillana" class="exec-checkbox" checked="" onchange="applyFilters()"> Macarena Cantillana
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Macarena Cantillana')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Lorannys Hernandez" class="exec-checkbox" checked="" onchange="applyFilters()"> Lorannys Hernandez
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Lorannys Hernandez')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Mauricio Irribarra Lagos" class="exec-checkbox" checked="" onchange="applyFilters()"> Mauricio Irribarra Lagos
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Mauricio Irribarra Lagos')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Katherina Gonzalez" class="exec-checkbox" checked="" onchange="applyFilters()"> Katherina Gonzalez
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Katherina Gonzalez')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Rodrigo Balboa" class="exec-checkbox" checked="" onchange="applyFilters()"> Rodrigo Balboa
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Rodrigo Balboa')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Martin Salinas" class="exec-checkbox" checked="" onchange="applyFilters()"> Martin Salinas
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Martin Salinas')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Maximiliano Romero" class="exec-checkbox" checked="" onchange="applyFilters()"> Maximiliano Romero
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Maximiliano Romero')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Nelson Sojo" class="exec-checkbox" checked="" onchange="applyFilters()"> Nelson Sojo
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Nelson Sojo')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Valentina Verdugo" class="exec-checkbox" checked="" onchange="applyFilters()"> Valentina Verdugo
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Valentina Verdugo')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label><label class="exec-item" style="display: flex;">
-                    <span style="display:flex; align-items:center; gap:6px; overflow:hidden; text-overflow:ellipsis;">
-                        <input type="checkbox" value="Diego Olea" class="exec-checkbox" checked="" onchange="applyFilters()"> Diego Olea
-                    </span>
-                    <button type="button" onclick="event.stopPropagation(); removeExecutive('Diego Olea')" class="btn-danger" style="padding:0px 3px; font-size:8px; line-height:1; border-radius:3px;" title="Eliminar ejecutivo">✕</button>
-                </label></div>
+                        <div class="executives-selector-container" id="executivesCheckboxList"></div>
                     </div>
                     <div>
                         <div style="font-size:11px; font-weight:bold; text-transform:uppercase; color:#475569; margin-bottom:4px;">Selección Activa:</div>
-                        <div id="activeSelectionBox" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:8px; font-size:11px; color:#334155; min-height:85px; max-height:115px; overflow-y:auto;"><div style="padding:2px 0;">• Belén Astudillo Saavedra</div><div style="padding:2px 0;">• Belen Astudillo</div><div style="padding:2px 0;">• Bryan Elcorrobarrutia</div><div style="padding:2px 0;">• Deborah Uribe</div><div style="padding:2px 0;">• Jorge Benavides</div><div style="padding:2px 0;">• Isaias Lobos</div><div style="padding:2px 0;">• Genesis Alfaro</div><div style="padding:2px 0;">• Jorge Gonzalez</div><div style="padding:2px 0;">• Javiera Sepulveda</div><div style="padding:2px 0;">• Juan Carlos Acuña</div><div style="padding:2px 0;">• Macarena Cantillana</div><div style="padding:2px 0;">• Lorannys Hernandez</div><div style="padding:2px 0;">• Mauricio Irribarra Lagos</div><div style="padding:2px 0;">• Katherina Gonzalez</div><div style="padding:2px 0;">• Rodrigo Balboa</div><div style="padding:2px 0;">• Martin Salinas</div><div style="padding:2px 0;">• Maximiliano Romero</div><div style="padding:2px 0;">• Nelson Sojo</div><div style="padding:2px 0;">• Valentina Verdugo</div><div style="padding:2px 0;">• Diego Olea</div></div>
+                        <div id="activeSelectionBox" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:8px; font-size:11px; color:#334155; min-height:85px; max-height:115px; overflow-y:auto;"></div>
                     </div>
                 </div>
             </section>
@@ -662,13 +583,15 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                     <div class="form-group" style="margin-bottom:0;">
                         <label>Compañía / Canal</label>
-                        <select id="filterCompany" onchange="applyFilters()"><option value="ALL_PROP">Todas (60% Fal, 30% HDI, 10% Otr)</option><option value="Cardif">Cardif</option><option value="FID">FID</option><option value="HDI">HDI</option><option value="HDI Seguros">HDI Seguros</option><option value="Otros Corredores">Otros Corredores</option><option value="Seguros Falabella">Seguros Falabella</option></select>
+                        <select id="filterCompany" onchange="applyFilters()">
+                            <option value="ALL_PROP">Todas (60% Fal, 30% HDI, 10% Otr)</option>
+                        </select>
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>Muestreo sobre Producción</label>
                         <div style="display:flex; gap:6px;">
                             <select id="samplePercentage" onchange="handleSampleSelectChange()" style="flex:1;">
-                                <option value="100" selected="">100% (Toda la muestra cargada)</option>
+                                <option value="100" selected>100% (Toda la muestra cargada)</option>
                                 <option value="50">50%</option>
                                 <option value="40">40%</option>
                                 <option value="30">30%</option>
@@ -690,24 +613,18 @@
             </div>
 
             <!-- BARRA DE MÉTRICAS SUPERIORES -->
-            <section class="metrics-bar" id="metricsBarContainer">
-                    <div class="metric-card"><p>Total Muestra</p><h3>5</h3></div>
-                    <div class="metric-card"><p>% Aprobación</p><h3>100.0%</h3></div>
-                    <div class="metric-card"><p>Inspecciones OK</p><h3>5</h3></div>
-                    <div class="metric-card"><p>Con Incidencias</p><h3 style="color:#be123c;">1</h3></div>
-                    <div class="metric-card"><p>Efectividad</p><h3 style="color:#059669;">80.0%</h3></div>
-                </section>
+            <section class="metrics-bar" id="metricsBarContainer"></section>
 
             <!-- VISTA 1: VISIÓN GLOBAL DEL NEGOCIO -->
             <div id="viewGlobal" class="tab-view">
                 <section class="dashboard-grid-img">
                     <div class="chart-card-box">
                         <h4>Ventas / Inspecciones a lo largo del tiempo</h4>
-                        <div class="chart-inner-wrap"><canvas id="liveChartTimeline" width="597" height="155" style="display: block; box-sizing: border-box; height: 155px; width: 597px;"></canvas></div>
+                        <div class="chart-inner-wrap"><canvas id="liveChartTimeline"></canvas></div>
                     </div>
                     <div class="chart-card-box">
                         <h4>Distribución por Canal</h4>
-                        <div class="chart-inner-wrap"><canvas id="liveChartCompany" width="300" height="155" style="display: block; box-sizing: border-box; height: 155px; width: 300px;"></canvas></div>
+                        <div class="chart-inner-wrap"><canvas id="liveChartCompany"></canvas></div>
                     </div>
                     <div class="chart-card-box">
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
@@ -718,7 +635,7 @@
                                 <span style="color:#f59e0b; font-weight:bold;">■ Moto</span>
                             </div>
                         </div>
-                        <div class="chart-inner-wrap"><canvas id="liveChartVehicleClass" width="300" height="155" style="display: block; box-sizing: border-box; height: 155px; width: 300px;"></canvas></div>
+                        <div class="chart-inner-wrap"><canvas id="liveChartVehicleClass"></canvas></div>
                     </div>
                 </section>
             </div>
@@ -901,9 +818,9 @@
                 <button onclick="closeChangePasswordModal()" class="btn-close">✕</button>
             </div>
             <form onsubmit="handlePasswordChange(event)" style="padding: 12px;">
-                <div class="form-group"><label>RUT Actual</label><input type="text" id="changeRut" required=""></div>
-                <div class="form-group"><label>Contraseña Actual</label><input type="password" id="changeCurrentPass" required=""></div>
-                <div class="form-group"><label>Nueva Contraseña</label><input type="password" id="changeNewPass" required=""></div>
+                <div class="form-group"><label>RUT Actual</label><input type="text" id="changeRut" required></div>
+                <div class="form-group"><label>Contraseña Actual</label><input type="password" id="changeCurrentPass" required></div>
+                <div class="form-group"><label>Nueva Contraseña</label><input type="password" id="changeNewPass" required></div>
                 <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:14px;">
                     <button type="button" onclick="closeChangePasswordModal()" class="btn-sec">Cancelar</button>
                     <button type="submit" class="btn-primary" style="width:auto;">Guardar Clave</button>
@@ -1123,7 +1040,7 @@
                     </div>
                     <div class="form-group" style="margin-bottom:0;">
                         <label>Ejecutivo / Inspector Asignado</label>
-                        <select id="modalExecutiveSelect"><option value="Belén Astudillo Saavedra">Belén Astudillo Saavedra</option><option value="Belen Astudillo">Belen Astudillo</option><option value="Bryan Elcorrobarrutia">Bryan Elcorrobarrutia</option><option value="Deborah Uribe">Deborah Uribe</option><option value="Jorge Benavides">Jorge Benavides</option><option value="Isaias Lobos">Isaias Lobos</option><option value="Genesis Alfaro">Genesis Alfaro</option><option value="Jorge Gonzalez">Jorge Gonzalez</option><option value="Javiera Sepulveda">Javiera Sepulveda</option><option value="Juan Carlos Acuña">Juan Carlos Acuña</option><option value="Macarena Cantillana">Macarena Cantillana</option><option value="Lorannys Hernandez">Lorannys Hernandez</option><option value="Mauricio Irribarra Lagos">Mauricio Irribarra Lagos</option><option value="Katherina Gonzalez">Katherina Gonzalez</option><option value="Rodrigo Balboa">Rodrigo Balboa</option><option value="Martin Salinas">Martin Salinas</option><option value="Maximiliano Romero">Maximiliano Romero</option><option value="Nelson Sojo">Nelson Sojo</option><option value="Valentina Verdugo">Valentina Verdugo</option><option value="Diego Olea">Diego Olea</option></select>
+                        <select id="modalExecutiveSelect"></select>
                     </div>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
@@ -1156,11 +1073,11 @@
                 <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-bottom:16px; background:#f8fafc; padding:12px; border:1px solid #e2e8f0; border-radius:8px;">
                     <div style="text-align:center;">
                         <b style="font-size:11px; color:#475569; display:block; margin-bottom:4px;">ESTADO GENERAL DE LA MUESTRA</b>
-                        <div style="height:140px; position:relative;"><canvas id="reportChartStatus" width="381" height="140" style="display: block; box-sizing: border-box; height: 140px; width: 381.5px;"></canvas></div>
+                        <div style="height:140px; position:relative;"><canvas id="reportChartStatus"></canvas></div>
                     </div>
                     <div style="text-align:center;">
                         <b style="font-size:11px; color:#475569; display:block; margin-bottom:4px;">DISTRIBUCIÓN POR CANAL (60-30-10)</b>
-                        <div style="height:140px; position:relative;"><canvas id="reportChartCompany" width="381" height="140" style="display: block; box-sizing: border-box; height: 140px; width: 381.5px;"></canvas></div>
+                        <div style="height:140px; position:relative;"><canvas id="reportChartCompany"></canvas></div>
                     </div>
                 </div>
 
@@ -1176,31 +1093,21 @@
                             <th style="padding:6px; border:1px solid #cbd5e1; text-align:center;">Total Muestra</th>
                         </tr>
                     </thead>
-                    <tbody id="reportExecutiveTableBody">
-                        <tr>
-                            <td style="padding:6px; border:1px solid #cbd5e1; font-weight:bold;">Bryan Elcorrobarrutia</td>
-                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">5</td>
-                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">1</td>
-                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">2</td>
-                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center;">2</td>
-                            <td style="padding:6px; border:1px solid #cbd5e1; text-align:center; font-weight:bold; color:#2563eb;">5</td>
-                        </tr></tbody>
+                    <tbody id="reportExecutiveTableBody"></tbody>
                 </table>
 
                 <div style="margin-bottom:14px; background:#fff1f2; border:1px solid #fecdd3; border-radius:8px; padding:12px;">
                     <h3 style="font-size:12px; color:#9f1239; margin-bottom:6px; border-bottom:1px dashed #fecdd3; padding-bottom:4px;">
                         ⚠️ Detalle de Daños Omitidos y Desviaciones Encontradas
                     </h3>
-                    <div id="reportErrorsSummaryContainer" style="font-size:11px; color:#334155;"><ul style="padding-left:18px; margin:0; line-height:1.5;"><li style="margin-bottom:6px;">
-                        <b>N° 2473710 (LPRV46) - Bryan Elcorrobarrutia:</b> <b>1 daño no informado:</b> Parachoques trasero (Rayon - Leve)
-                    </li></ul></div>
+                    <div id="reportErrorsSummaryContainer" style="font-size:11px; color:#334155;"></div>
                 </div>
 
                 <div style="background:#eff6ff; border:1px solid #bfdbfe; border-radius:8px; padding:12px; margin-bottom:10px;">
                     <h3 style="font-size:12px; color:#1e40af; margin-bottom:6px; border-bottom:1px dashed #bfdbfe; padding-bottom:4px;">
                         💡 Recomendaciones y Plan de Acción para Capacitaciones
                     </h3>
-                    <ul id="reportRecommendationsContainer" style="font-size:11px; color:#1e3a8a; padding-left:18px; margin:0; line-height:1.5;"><li style="margin-bottom:4px;"><b>Reforzamiento en Inspección Visual:</b> Se detectaron 1 casos con daños no consignados. Se sugiere realizar taller práctico sobre revisión minuciosa de piezas carroceras y manguetas.</li></ul>
+                    <ul id="reportRecommendationsContainer" style="font-size:11px; color:#1e3a8a; padding-left:18px; margin:0; line-height:1.5;"></ul>
                 </div>
             </div>
             <div class="modal-footer">
@@ -2589,7 +2496,6 @@
             item.executive = document.getElementById('modalExecutiveSelect').value;
             item.notes = document.getElementById('modalNotes').value;
             
-            // Marcar la evaluación como finalizada al hacer clic en Finalizar Evaluación
             item.auditFinalized = true;
 
             saveLocalStorageData();
@@ -2840,6 +2746,5 @@
             window.getSelection().removeAllRanges();
         }
     </script>
-
-
-</body></html>
+</body>
+</html>
